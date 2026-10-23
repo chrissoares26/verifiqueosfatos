@@ -79,9 +79,16 @@
     // Keep state in memory
     let currentPosts = [];
 
+    // Drop malformed items so one bad entry can't break rendering for everyone
+    function isValid(item) {
+      return !!item && !!labels.n[item.n] && !!labels.c[item.c]
+        && typeof item.t === 'string' && typeof item.v === 'string';
+    }
+
     function getLS() {
       try {
-        return JSON.parse(localStorage.getItem('data')) || [];
+        const data = JSON.parse(localStorage.getItem('data'));
+        return Array.isArray(data) ? data.filter(isValid) : [];
       } catch {
         return [];
       }
@@ -177,16 +184,13 @@
       fetch(`${URI_POSTS_JSON}?v=${generateAlphanumeric()}`)
         .then(r => r.json())
         .then(data => {
-          if (Array.isArray(data) && !data.length) {
-            window.localStorage.removeItem('data');
-            render([]);
-          }
-
-          if (data && data.length) {
-            // Save to localStorage and update DOM incrementally
-            localStorage.setItem('data', JSON.stringify(data));
-            render(data);
-          }
+          if (!Array.isArray(data)) return;
+          const items = data.filter(isValid);
+          // Render before saving: blocked storage must not stop the update
+          render(items);
+          try {
+            localStorage.setItem('data', JSON.stringify(items));
+          } catch {}
         })
         .catch(console.error);
     }

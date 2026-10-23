@@ -109,7 +109,7 @@ Isso significa que todos os clientes estarão vendo NENHUMA declaração. Digamo
     "c": 1,
     "t": "Aqui estará a declaração feita pelo candidato descrita o mais fielmente possível",
     "v": "Aqui estará a verificação feita, com fontes e referências."
-  },
+  }
 ]
 ```
 
